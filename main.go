@@ -29,12 +29,27 @@ func main() {
 		log.Fatalf("Failed to send CONSUME command: %v", err)
 	}
 
+	instructions := map[string]string{
+		"PING - pp":   "Ping the server",
+		"PUBLISH - p": "Publish a message",
+		"CONSUME - c": "Consume a message",
+		"QUIT - q":    "Quit the program",
+	}
+
 	for {
-		fmt.Print("Enter command (PUBLISH or CONSUME) (p/c): ")
+		fmt.Println("\n\n============================")
+		for k, ins := range instructions {
+			fmt.Printf("%s\t %s\n", k, ins)
+		}
+		fmt.Println("============================")
+		fmt.Println("Enter a command:")
+
 		input, _ := reader.ReadString('\n')
 
 		switch input[:len(input)-1] {
-		case "ping":
+		case "pp":
+			fallthrough
+		case "PING":
 			t := time.Now()
 			fmt.Println("Pinging...")
 
@@ -98,6 +113,12 @@ func main() {
 
 			// Read the length of the binary message (4 bytes)
 			// Read the binary message
+
+		case "q":
+			fallthrough
+		case "QUIT":
+			fmt.Println("See you soon...")
+			return
 
 		default:
 			fmt.Println("Unknown command")
