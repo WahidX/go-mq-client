@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 var port = "4000"
@@ -33,6 +34,25 @@ func main() {
 		input, _ := reader.ReadString('\n')
 
 		switch input[:len(input)-1] {
+		case "ping":
+			t := time.Now()
+			fmt.Println("Pinging...")
+
+			if _, err := conn.Write([]byte{0}); err != nil { // ping command - 0
+				closeConn(err)
+			}
+
+			var pingResBin uint32
+			err := binary.Read(conn, binary.BigEndian, &pingResBin)
+			if err != nil {
+				closeConn(err)
+			}
+			if pingResBin == 1 {
+				fmt.Println("Pong", time.Since(t))
+			} else {
+				fmt.Println("Failed to ping", time.Since(t))
+			}
+
 		case "p":
 			fallthrough
 		case "PUBLISH":
