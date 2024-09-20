@@ -71,6 +71,8 @@ func main() {
 		case "p":
 			fallthrough
 		case "PUBLISH":
+			fmt.Print("Enter topic: ")
+			topic, _ := reader.ReadString('\n')
 			fmt.Print("Enter binary message to send: ")
 			msg, _ := reader.ReadString('\n')
 			msg = strings.TrimSpace(msg)
@@ -78,6 +80,11 @@ func main() {
 			// starting to send the inputs to the MQ server
 			// PUBLISH command (1 byte)
 			if _, err := conn.Write([]byte{1}); err != nil {
+				closeConn(err)
+			}
+
+			// Send the topic
+			if _, err := conn.Write([]byte(topic)); err != nil {
 				closeConn(err)
 			}
 
