@@ -13,21 +13,25 @@ import (
 
 var port = "4000"
 
-func main() {
-	// Connect to the server
+var getConn = func() net.Conn {
 	conn, err := net.Dial("tcp", "localhost:"+port)
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
-	defer conn.Close()
+	return conn
+}
+
+func main() {
+	// Connect to the server
+
+	// conn, err := net.Dial("tcp", "localhost:"+port)
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect: %v", err)
+	// }
+	// defer conn.Close()
 
 	// Reader for user input
 	stdInReader := bufio.NewReader(os.Stdin)
-
-	closeConn := func(err error) {
-		conn.Close()
-		log.Fatalf("Failed to send CONSUME command: %v", err)
-	}
 
 	instructions := map[string]string{
 		"PING - pp":   "Ping the server",
@@ -45,6 +49,13 @@ func main() {
 		fmt.Println("Enter a command:")
 
 		input, _ := stdInReader.ReadString('\n')
+
+		conn := getConn()
+
+		closeConn := func(err error) {
+			conn.Close()
+			log.Fatalf("Failed to send CONSUME command: %v", err)
+		}
 
 		switch input[:len(input)-1] {
 		case "pp":
@@ -114,7 +125,7 @@ func main() {
 			fmt.Print("Enter topic to consume: ")
 			topic, _ := stdInReader.ReadString('\n')
 
-			if _, err = conn.Write([]byte(topic)); err != nil {
+			if _, err := conn.Write([]byte(topic)); err != nil {
 				closeConn(err)
 			}
 
