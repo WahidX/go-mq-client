@@ -22,7 +22,7 @@ func main() {
 	defer conn.Close()
 
 	// Reader for user input
-	reader := bufio.NewReader(os.Stdin)
+	stdInReader := bufio.NewReader(os.Stdin)
 
 	closeConn := func(err error) {
 		conn.Close()
@@ -44,7 +44,7 @@ func main() {
 		fmt.Println("============================")
 		fmt.Println("Enter a command:")
 
-		input, _ := reader.ReadString('\n')
+		input, _ := stdInReader.ReadString('\n')
 
 		switch input[:len(input)-1] {
 		case "pp":
@@ -72,9 +72,9 @@ func main() {
 			fallthrough
 		case "PUBLISH":
 			fmt.Print("Enter topic: ")
-			topic, _ := reader.ReadString('\n')
+			topic, _ := stdInReader.ReadString('\n')
 			fmt.Print("Enter binary message to send: ")
-			msg, _ := reader.ReadString('\n')
+			msg, _ := stdInReader.ReadString('\n')
 			msg = strings.TrimSpace(msg)
 
 			// starting to send the inputs to the MQ server
@@ -112,14 +112,26 @@ func main() {
 			}
 
 			fmt.Print("Enter topic to consume: ")
-			topic, _ := reader.ReadString('\n')
+			topic, _ := stdInReader.ReadString('\n')
 
 			if _, err = conn.Write([]byte(topic)); err != nil {
 				closeConn(err)
 			}
 
-			// Read the length of the binary message (4 bytes)
-			// Read the binary message
+			// Wait and keep reading incoming data
+			msg := make([]byte, 1024)
+
+			for {
+				n, err := conn.Read(msg)
+				fmt.Println("n: ", n)
+				if err != nil {
+					fmt.Println("Err in reading message: ", err)
+					break
+				}
+
+				fmt.Println("incoming data: ", string(msg))
+				time.Sleep(3 * time.Second)
+			}
 
 		case "q":
 			fallthrough
