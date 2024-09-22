@@ -51,6 +51,7 @@ func main() {
 		input, _ := stdInReader.ReadString('\n')
 
 		conn := getConn()
+		defer conn.Close()
 
 		closeConn := func(err error) {
 			conn.Close()
