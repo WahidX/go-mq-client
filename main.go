@@ -135,13 +135,12 @@ func main() {
 
 			for {
 				n, err := conn.Read(msg)
-				fmt.Println("n: ", n)
 				if err != nil {
 					fmt.Println("Err in reading message: ", err)
 					break
 				}
 
-				fmt.Println("incoming data: ", string(msg))
+				fmt.Println("incoming data: ", string(msg)[:n])
 				time.Sleep(3 * time.Second)
 			}
 
